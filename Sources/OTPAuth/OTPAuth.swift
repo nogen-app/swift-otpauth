@@ -45,6 +45,28 @@ public struct OTPAuth {
 		self.secret = secret
 		self.counter = counter
 	}
+	
+	init(otpType: OTPType, secret: String) {
+		self.otpType = otpType
+		self.issuer = ""
+		self.label = ""
+		self.algorithm = .SHA1
+		self.digits = 6
+		self.period = 30
+		self.secret = secret
+		self.counter = nil
+	}
+	
+	init(otpType: OTPType, secret: String, algorithm: OTPAlg, digits: Int, period: Int) {
+		self.otpType = otpType
+		self.issuer = ""
+		self.label = ""
+		self.algorithm = algorithm
+		self.digits = digits
+		self.period = period
+		self.secret = secret
+		self.counter = nil
+	}
 }
 
 extension OTPAuth {

@@ -1,5 +1,5 @@
 import XCTest
-@testable import swift_otpauth
+@testable import OTPAuth
 
 final class swift_otpauthTests: XCTestCase {
     func testExample() throws {
