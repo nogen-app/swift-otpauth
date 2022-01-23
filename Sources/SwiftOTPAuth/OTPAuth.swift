@@ -126,27 +126,27 @@ extension OTPAuth {
 		}
 		
 		if let digitsString = (url.queryItems!.first(where: { $0.name == "digits"})) {
-			guard digits == Int(digitsString.value!) else {
+			guard let convertedDigits = Int(digitsString.value!) else {
 				throw OTPError.parsingError
 			}
-			digits = Int(digitsString.value!)
+			digits = convertedDigits
 		}
 		
 		if let periodString = (url.queryItems!.first(where: { $0.name == "period"})) {
-			guard period == Int(periodString.value!) else {
+			guard let convertedPeriod = Int(periodString.value!) else {
 				throw OTPError.parsingError
 			}
-			period = Int(periodString.value!)
+			period = convertedPeriod
 		}
 		
 		if type == OTPType.hotp {
 			guard let counterString = (url.queryItems!.first(where: { $0.name == "counter"})) else {
 				throw OTPError.parsingError
 			}
-			guard counter == Int(counterString.value!) else {
+			guard let convertedCounter = Int(counterString.value!) else {
 				throw OTPError.parsingError
 			}
-			counter = Int(counterString.value!)
+			counter = convertedCounter
 		} else {
 			counter = nil
 		}
