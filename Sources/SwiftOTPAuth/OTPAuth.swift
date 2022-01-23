@@ -26,16 +26,16 @@ import SwiftOTP
 import Foundation
 
 public struct OTPAuth {
-	let otpType: OTPType
-	let issuer: String?
-	let label: String
-	let algorithm: OTPAlg
-	let digits: Int
-	let period: Int
-	let secret: String
-	let counter: Int?
+	public let otpType: OTPType
+	public let issuer: String?
+	public let label: String
+	public let algorithm: OTPAlg
+	public let digits: Int
+	public let period: Int
+	public let secret: String
+	public let counter: Int?
 	
-	init(otpType: OTPType, issuer: String?, label: String, algorithm: OTPAlg?, digits: Int?, period: Int?, secret: String, counter: Int?) {
+	public init(otpType: OTPType, issuer: String?, label: String, algorithm: OTPAlg?, digits: Int?, period: Int?, secret: String, counter: Int?) {
 		self.otpType = otpType
 		self.issuer = issuer
 		self.label = label
@@ -46,7 +46,7 @@ public struct OTPAuth {
 		self.counter = counter
 	}
 	
-	init(otpType: OTPType, secret: String) {
+	public init(otpType: OTPType, secret: String) {
 		self.otpType = otpType
 		self.issuer = ""
 		self.label = ""
@@ -57,7 +57,7 @@ public struct OTPAuth {
 		self.counter = nil
 	}
 	
-	init(otpType: OTPType, secret: String, algorithm: OTPAlg, digits: Int, period: Int) {
+	public init(otpType: OTPType, secret: String, algorithm: OTPAlg, digits: Int, period: Int) {
 		self.otpType = otpType
 		self.issuer = ""
 		self.label = ""
