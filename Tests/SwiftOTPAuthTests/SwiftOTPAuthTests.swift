@@ -16,10 +16,17 @@ final class SwiftOTPAuthTests: XCTestCase {
 	func testTotpGenerate() throws {
 		let otp = OTPAuth(otpType: .totp, secret: "R33IQKVJ4TKX4PSDWRH7RESGCSPEORRU")
 		
-		let formatter = DateFormatter()
-		formatter.dateFormat = "yyyy/MM/dd HH:mm:ss"
-		let date = formatter.date(from: "1996/05/18 00:00:00")
+		var date = DateComponents()
+		date.year = 1996
+		date.month = 5
+		date.day = 18
+		date.timeZone = TimeZone(abbreviation: "CET")
+		date.hour = 0
+		date.minute = 0
+		date.second = 0
 		
-		XCTAssertEqual(otp.generate(date!), "660158")
+		let userCalendar = Calendar.current
+		
+		XCTAssertEqual(otp.generate(userCalendar.date(from: date)!), "660158")
 	}
 }
