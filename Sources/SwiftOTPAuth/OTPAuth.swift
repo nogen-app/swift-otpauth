@@ -71,6 +71,10 @@ public struct OTPAuth {
 
 extension OTPAuth {
 	public func generate() -> String {
+		return generate(Date())
+	}
+	
+	public func generate(_ date: Date) -> String {
 		let alg: OTPAlgorithm
 		
 		switch algorithm {
