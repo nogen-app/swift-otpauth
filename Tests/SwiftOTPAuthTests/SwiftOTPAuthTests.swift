@@ -20,6 +20,6 @@ final class SwiftOTPAuthTests: XCTestCase {
 		formatter.dateFormat = "yyyy/MM/dd HH:mm:ss"
 		let date = formatter.date(from: "1996/05/18 00:00:00")
 		
-		XCTAssertEqual(otp.generate(date!), "768250")
+		XCTAssertEqual(otp.generate(date!), "660158")
 	}
 }

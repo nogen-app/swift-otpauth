@@ -92,7 +92,7 @@ extension OTPAuth {
 			return generator!.generate(counter: UInt64(counter!))!
 		case .totp:
 			let generator = TOTP(secret: base32DecodeToData(secret)!, digits: digits, timeInterval: period, algorithm: alg)
-			return generator!.generate(time: Date())!
+			return generator!.generate(time: date)!
 		}
 	}
 }
