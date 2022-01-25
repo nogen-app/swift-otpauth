@@ -33,7 +33,7 @@ public struct OTPAuth {
 	public let digits: Int
 	public let period: Int
 	public let secret: String
-	public let counter: Int?
+	public var counter: Int?
 	
 	public init(otpType: OTPType, issuer: String?, label: String, algorithm: OTPAlg?, digits: Int?, period: Int?, secret: String, counter: Int?) {
 		self.otpType = otpType
@@ -57,6 +57,17 @@ public struct OTPAuth {
 		self.counter = nil
 	}
 	
+	public init(otpType: OTPType, secret: String, counter: Int) {
+		self.otpType = otpType
+		self.issuer = ""
+		self.label = ""
+		self.algorithm = .SHA1
+		self.digits = 6
+		self.period = 30
+		self.secret = secret
+		self.counter = counter
+	}
+	
 	public init(otpType: OTPType, secret: String, algorithm: OTPAlg, digits: Int, period: Int) {
 		self.otpType = otpType
 		self.issuer = ""
@@ -70,12 +81,18 @@ public struct OTPAuth {
 }
 
 extension OTPAuth {
-	public func generate() -> String {
+	public mutating func generate() -> String {
 		return generate(Date())
 	}
 	
-	public func generate(_ date: Date) -> String {
+	public mutating func generate(_ date: Date) -> String {
 		let alg: OTPAlgorithm
+		
+		//Removing timezone from the date, since the way that swift handles this can give issues
+		let userCalendar = Calendar.current
+		var dateComponents = userCalendar.dateComponents([.year, .month, .day, .hour, .minute, .second], from: date)
+		dateComponents.timeZone = nil
+		let newDate = userCalendar.date(from:dateComponents)!
 		
 		switch algorithm {
 		case .SHA1:
@@ -86,13 +103,16 @@ extension OTPAuth {
 			alg = .sha512
 		}
 		
+		
 		switch otpType {
 		case .hotp:
 			let generator = HOTP(secret: base32DecodeToData(secret)!, digits: digits, algorithm: alg)
-			return generator!.generate(counter: UInt64(counter!))!
+			let result = generator!.generate(counter: UInt64(counter!))!
+			counter! += 1
+			return result
 		case .totp:
 			let generator = TOTP(secret: base32DecodeToData(secret)!, digits: digits, timeInterval: period, algorithm: alg)
-			return generator!.generate(time: date)!
+			return generator!.generate(time: newDate)!
 		}
 	}
 }
