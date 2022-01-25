@@ -2,25 +2,56 @@ import XCTest
 @testable import SwiftOTPAuth
 
 final class SwiftOTPAuthTests: XCTestCase {
-	func testFromURI() throws {
-		let otp = try OTPAuth.fromURI("otpauth://totp/ACME%20Co:john@example.com?secret=R33IQKVJ4TKX4PSDWRH7RESGCSPEORRU&issuer=ACME%20Co&algorithm=SHA1&digits=6&period=30")
+	func testFromCompleteURI() throws {
+		let otp = try OTPAuth.fromURI("otpauth://totp/ACME%20Co:john@example.com?secret=R33IQKVJ4TKX4PSDWRH7RESGCSPEORRU&issuer=ACME%20Co&algorithm=SHA256&digits=8&period=60")
 		
 		XCTAssertEqual(otp.otpType, .totp)
-		XCTAssertEqual(otp.period, 30)
+		XCTAssertEqual(otp.period, 60)
 		XCTAssertEqual(otp.issuer, "ACME Co")
-		XCTAssertEqual(otp.algorithm, .SHA1)
+		XCTAssertEqual(otp.algorithm, .SHA256)
+		XCTAssertEqual(otp.digits, 8)
+		XCTAssertEqual(otp.secret, "R33IQKVJ4TKX4PSDWRH7RESGCSPEORRU")
+	}
+	
+	func testFromURINoPeriod() throws {
+		let otp = try OTPAuth.fromURI("otpauth://totp/ACME%20Co:john@example.com?secret=R33IQKVJ4TKX4PSDWRH7RESGCSPEORRU&issuer=ACME%20Co&algorithm=SHA256&digits=8")
+		
+		XCTAssertEqual(otp.period, 30)
+		
+		XCTAssertEqual(otp.otpType, .totp)
+		XCTAssertEqual(otp.issuer, "ACME Co")
+		XCTAssertEqual(otp.algorithm, .SHA256)
+		XCTAssertEqual(otp.digits, 8)
+		XCTAssertEqual(otp.secret, "R33IQKVJ4TKX4PSDWRH7RESGCSPEORRU")
+	}
+	
+	func testFromURINodigits() throws {
+		let otp = try OTPAuth.fromURI("otpauth://totp/ACME%20Co:john@example.com?secret=R33IQKVJ4TKX4PSDWRH7RESGCSPEORRU&issuer=ACME%20Co&algorithm=SHA256&period=30")
+		
+		XCTAssertEqual(otp.digits, 6)
+		
+		XCTAssertEqual(otp.otpType, .totp)
+		XCTAssertEqual(otp.issuer, "ACME Co")
+		XCTAssertEqual(otp.algorithm, .SHA256)
 		XCTAssertEqual(otp.period, 30)
 		XCTAssertEqual(otp.secret, "R33IQKVJ4TKX4PSDWRH7RESGCSPEORRU")
 	}
 	
+	func testFromURIInvalid() throws {
+		XCTAssertThrowsError(try OTPAuth.fromURI("otpauth://totp/ACME%20Co:john@example.com?&issuer=ACME%20Co&algorithm=SHA256&period=30")) { error in
+			XCTAssertEqual(error as! OTPError, .noSecret)
+		}
+	}
+	
+	
 	func testTotpGenerate() throws {
-		var otp = OTPAuth(otpType: .totp, secret: "R33IQKVJ4TKX4PSDWRH7RESGCSPEORRU")
+		let otp = OTPAuth(otpType: .totp, secret: "R33IQKVJ4TKX4PSDWRH7RESGCSPEORRU")
 		
 		var date = DateComponents()
 		date.year = 1996
 		date.month = 5
 		date.day = 18
-		date.timeZone = TimeZone(abbreviation: "CET")
+		date.timeZone = nil
 		date.hour = 0
 		date.minute = 0
 		date.second = 0
@@ -35,11 +66,11 @@ final class SwiftOTPAuthTests: XCTestCase {
 	}
 	
 	func testHotpGenerate() throws {
-		var otp = OTPAuth(otpType: .hotp, secret: "R33IQKVJ4TKX4PSDWRH7RESGCSPEORRU", counter: 8 )
+		let otp = OTPAuth(otpType: .hotp, secret: "R33IQKVJ4TKX4PSDWRH7RESGCSPEORRU")
 		
-		XCTAssertEqual(otp.generate(), "991868")
-		//It should auto increment its counter so we should never get the same code twice in a row
-		XCTAssertNotEqual(otp.generate(), "991868")
+		XCTAssertEqual(otp.generate(8), "991868")
+		
+		XCTAssertNotEqual(otp.generate(9), "991868")
 		
 	}
 }

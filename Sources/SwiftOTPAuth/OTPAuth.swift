@@ -81,11 +81,16 @@ public struct OTPAuth {
 }
 
 extension OTPAuth {
-	public mutating func generate() -> String {
-		return generate(Date())
+	public func generate() -> String {
+		switch otpType {
+		case .hotp:
+			return generate(self.counter!)
+		case .totp:
+			return generate(Date())
+		}
 	}
 	
-	public mutating func generate(_ date: Date) -> String {
+	public func generate(_ date: Date) -> String {
 		let alg: OTPAlgorithm
 		
 		//Removing timezone from the date, since the way that swift handles this can give issues
@@ -103,17 +108,26 @@ extension OTPAuth {
 			alg = .sha512
 		}
 		
+		let generator = TOTP(secret: base32DecodeToData(secret)!, digits: digits, timeInterval: period, algorithm: alg)
+		return generator!.generate(time: newDate)!
+	}
+	
+	public func generate(_ counter: Int) -> String {
+		let alg: OTPAlgorithm
 		
-		switch otpType {
-		case .hotp:
-			let generator = HOTP(secret: base32DecodeToData(secret)!, digits: digits, algorithm: alg)
-			let result = generator!.generate(counter: UInt64(counter!))!
-			counter! += 1
-			return result
-		case .totp:
-			let generator = TOTP(secret: base32DecodeToData(secret)!, digits: digits, timeInterval: period, algorithm: alg)
-			return generator!.generate(time: newDate)!
+		switch algorithm {
+		case .SHA1:
+			alg = .sha1
+		case .SHA256:
+			alg = .sha256
+		case .SHA512:
+			alg = .sha512
 		}
+		
+		let generator = HOTP(secret: base32DecodeToData(secret)!, digits: digits, algorithm: alg)
+		let result = generator!.generate(counter: UInt64(counter))!
+		return result
+		
 	}
 }
 
