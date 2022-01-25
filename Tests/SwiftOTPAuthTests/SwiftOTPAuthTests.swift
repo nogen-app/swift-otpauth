@@ -58,6 +58,8 @@ final class SwiftOTPAuthTests: XCTestCase {
 		
 		let userCalendar = Calendar.current
 		
+		print(String(floor(userCalendar.date(from: date)!.timeIntervalSince1970)))
+		
 		XCTAssertEqual(otp.generate(userCalendar.date(from: date)!), "660158")
 		
 		date.hour = 1
